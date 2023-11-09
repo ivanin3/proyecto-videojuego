@@ -7,6 +7,7 @@ class Balon {
     this.speedY = speedY;
     this.speedX = speedX;
     this.imagenBalon = imagenBalonFutbol;
+    this.isJumping = false;
   }
 
   draw() {
@@ -14,19 +15,36 @@ class Balon {
   }
 
   update() {
+    this.x += this.speedX;
     this.speedY += this.gravityValue;
     this.y += this.speedY;
+
+    for (let i = 0; i < obstaculos.length; i++) {
+      const obstacle = obstaculos[i];
+      if (
+        this.x + this.imagenBalon.width > obstacle.x &&
+        this.x < obstacle.x + obstacle.imagenObstaculo.width &&
+        this.y + this.imagenBalon.height >= obstacle.y &&
+        this.y < obstacle.y + obstacle.imagenObstaculo.height
+      ) {
+        this.y = obstacle.y - this.imagenBalon.height;
+        this.isJumping = false;
+        break;
+      }
+    }
   }
-  
 
   jump() {
-    this.speedY = -10;
-    this.y += this.speedY;
+    if (!this.isJumping) {
+      this.speedY = -15;
+      this.y += this.speedY;
+      this.isJumping = true;
+    }
   }
 }
 
 function keyPressed() {
   if (keyCode === 32) {
-      balon.jump();
-  } 
+    balon.jump();
+  }
 }
