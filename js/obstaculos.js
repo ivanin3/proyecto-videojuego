@@ -4,7 +4,6 @@ class Obstaculo {
     this.y = y; 
     this.velocidad = velocidad;
     this.imagenObstaculo = imagenObstaculo;
-  // this.spacing = 100;
   }
 
   draw() {
