@@ -1,80 +1,100 @@
-let imagenFondo;
-let imagenBalonFutbol;
-let imagenBalonBaloncesto;
-let imagenBalonTennis;
-let imagenBalonGolf;
-let imagenBalonBolos;
-let obstaculos = [];
-let imagenObstaculo;
-let imagenMontaña;
-let imagenArboles;
 let balon;
+let obstaculos = [];
+let obstaculo;
+let imagenGameOver;
+let tiempoInicio;
+let duracionNivel = 30 * 1000; // 30 segundos en milisegundos
+let nivelPasado = false;
+let tiempoRestante;
+let nivel = 1;
+let numeros = [];
+
+
 
 function preload() {
-  imagenFondo = loadImage("./fondos/layers/parallax-mountain-bg.png");
-  imagenObstaculo = loadImage("./imagenes-adicionales/obstaculo.png");
-  imagenMontaña = loadImage("./fondos/layers/parallax-mountain-mountains.png");
-  imagenArboles = loadImage(
-    "./fondos/layers/parallax-mountain-foreground-trees.png"
-  );
   imagenBalonFutbol = loadImage("./balones/football.png");
   imagenBalonBaloncesto = loadImage("./balones/basketball.png");
   imagenBalonTennis = loadImage("./balones/tennis.png");
   imagenBalonGolf = loadImage("./balones/golf.png");
   imagenBalonBolos = loadImage("./balones/bowling.png");
+  imagenGameOver = loadImage("./imagenes-adicionales/gameover.png");
+ /* imagen0 = loadImage("./imagenes-adicionales/0.png");
+  imagen1 = loadImage("./imagenes-adicionales/1.png");
+  imagen2 = loadImage("./imagenes-adicionales/2.png");
+  imagen3 = loadImage("./imagenes-adicionales/3.png");
+  imagen4 = loadImage("./imagenes-adicionales/4.png");
+  imagen5 = loadImage("./imagenes-adicionales/5.png");
+  imagen6 = loadImage("./imagenes-adicionales/6.png");
+  imagen7 = loadImage("./imagenes-adicionales/7.png");
+  imagen8 = loadImage("./imagenes-adicionales/8.png");
+  imagen9 = loadImage("./imagenes-adicionales/9.png");*/
+  for (let i = 0; i <= 9; i++) {
+    numeros.push(loadImage('./numeros/' + i + '.png'));
+  }
 }
 
 function setup() {
   createCanvas(1200, 600);
-  imagenFondo.resize(width, height);
-  imagenMontaña.resize(width, height);
-  imagenArboles.resize(width, height);
-  balon = new Balon(100, 100, imagenBalonFutbol, 0, 0);
-}
+  balon = new Balon();
+  tiempoInicio = millis(); // Guarda el tiempo actual
+  tiempoRestante = duracionNivel; // Inicializa el tiempo restante al valor inicial
+
+  }
+
 
 function draw() {
-  image(imagenFondo, 0, 0);
-  image(imagenMontaña, 0, 0);
-  image(imagenArboles, 0, 0);
+  background(220);
   balon.draw();
-  balon.update();
+  balon.move();
 
-  if (keyIsDown(RIGHT_ARROW)) {
-    balon.speedX = 0.5;
+  if (balon.checkCollision(obstaculos)) {
+    // Si hay colisión, mostrar mensaje de Game Over y reiniciar el juego después de 3 segundos
+    image (imagenGameOver, 200, 100, 800, 300);
+
+    setTimeout(function() {
+      obstaculos = []; // Reiniciar lista de obstáculos
+      balon = new Balon(); // Reiniciar balón
+    }, 3000); // Esperar 3 segundos (3000 milisegundos) antes de reiniciar
+    return; // Salir de la función draw() para evitar que se siga dibujando
   }
 
-  balon.update();
-  if (frameCount % 100 === 0) {
-    obstaculos.push(new Obstaculo(width, random(height / 2, height - 100), 5));
+
+  if (frameCount % 60 === 0) {
+    obstaculos.push(new Obstaculo(imagenBalonFutbol, obstaculos)); // Crear un nuevo obstáculo y pasar la imagen y la lista de obstáculos
   }
 
-  if (frameCount % 170 === 0) {
-    obstaculos.push(new Obstaculo(width, random(height / 2, height - 100), 5));
-  }
-  // OBSTACULOS EN LA BASE DEL JUEGO HACIA LA DERECHA
-  if (frameCount % 100 === 0) {
-    obstaculos.push(new Obstaculo(-300, 580, -5));
-  }
-
+  // Actualizar y dibujar los obstáculos existentes
   for (let i = obstaculos.length - 1; i >= 0; i--) {
-    obstaculos[i].draw();
     obstaculos[i].update();
+    obstaculos[i].draw();
 
-    if (obstaculos[i].offScreen()) {
+    // Eliminar los obstáculos que salen del canvas
+    if (obstaculos[i].y > height + obstaculos[i].imagenBalonFutbol.height) {
       obstaculos.splice(i, 1);
     }
   }
-
-  // BORDES DEL CANVAS PARA NO SUPERARLOS
-  if (balon.x < 0) {
-    balon.x = 0;
-  } else if (balon.x + balon.imagenBalon.width > width) {
-    balon.x = width - balon.imagenBalon.width;
+  tiempoRestante = duracionNivel - (millis() - tiempoInicio); // Calcula el tiempo restante
+  
+  if (tiempoRestante <= 0 && !nivelPasado) {
+    nivelPasado = true;
+    nivel++; // Aumenta el nivel
+    
+    // Reiniciar el juego para el siguiente nivel
+    obstaculos = [];
+    balon = new Balon();
+    tiempoInicio = millis(); // Reiniciar el tiempo
+    
+    // Establecer el tiempo del siguiente nivel (si es diferente)
+    duracionNivel = 30 * 1000; // Por ejemplo, 30 segundos nuevamente
+    
+    // Otros cambios que quieras realizar al pasar de nivel
+    // ...
   }
-
-  if (balon.y < 0) {
-    balon.y = 0;
-  } else if (balon.y + balon.imagenBalon.height > height) {
-    balon.y = height - balon.imagenBalon.height;
-  }
+  
+  let segundos = floor(tiempoRestante / 1000);
+  let unidades = segundos % 10;
+  let decenas = floor(segundos / 10);
+  
+  image(numeros[decenas], 20, 40); // Dibuja la imagen de las decenas
+  image(numeros[unidades], 60, 40); // Dibuja la imagen de las unidades
 }

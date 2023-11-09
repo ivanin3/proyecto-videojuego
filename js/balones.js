@@ -1,50 +1,50 @@
 class Balon {
-  constructor(x, y, imagenBalonFutbol, speedX, speedY) {
-    this.x = x;
-    this.y = y;
-    this.speeed = 0;
-    this.gravityValue = 0.5;
-    this.speedY = speedY;
-    this.speedX = speedX;
-    this.imagenBalon = imagenBalonFutbol;
-    this.isJumping = false;
+  constructor(imagen) {
+    this.x = width / 2; // Posición inicial en el centro del borde inferior del canvas
+    this.y = height - 66; // Posición inicial en el borde inferior del canvas
+    this.speed = 1; // Velocidad de caída del balón
+    this.imagenBalonFutbol = imagenBalonFutbol;
+   // this.radius = 66;
   }
 
+  move() {
+    // Actualizar la posición del balón en función de la entrada del usuario
+    if (keyIsDown(LEFT_ARROW)) {
+      this.x -= 5; // Mover hacia la izquierda
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+      this.x += 5; // Mover hacia la derecha
+    }
+  
+    // Verificar si el balón ha salido del canvas por los lados izquierdo o derecho
+    if (this.x - this.radius < 0) {
+      this.x = this.radius; // Limitar la posición a la derecha del canvas
+    } else if (this.x + this.radius > width) {
+      this.x = width - this.radius; // Limitar la posición a la derecha del canvas
+    }
+  }
+  
   draw() {
-    image(this.imagenBalon, this.x, this.y);
+    image(this.imagenBalonFutbol, this.x, this.y);
   }
 
-  update() {
-    this.x += this.speedX;
-    this.speedY += this.gravityValue;
-    this.y += this.speedY;
+  checkCollision(x, y) {
+    // Verificar colisión con otro objeto en las coordenadas (x, y)
+    let d = dist(this.x, this.y, x, y);
+    return d < this.radius;
+  }
 
+  checkCollision(obstaculos) {
     for (let i = 0; i < obstaculos.length; i++) {
-      const obstacle = obstaculos[i];
-      if (
-        this.x + this.imagenBalon.width > obstacle.x &&
-        this.x < obstacle.x + obstacle.imagenObstaculo.width &&
-        this.y + this.imagenBalon.height >= obstacle.y &&
-        this.y < obstacle.y + obstacle.imagenObstaculo.height
-      ) {
-        this.y = obstacle.y - this.imagenBalon.height;
-        this.isJumping = false;
-        break;
+      let d = dist(this.x, this.y, obstaculos[i].x, obstaculos[i].y);
+      let r = this.imagenBalonFutbol.width / 2 + obstaculos[i].imagenBalonFutbol.width / 2;
+
+      if (d < r) {
+        // Colisión detectada
+        return true;
       }
     }
-  }
 
-  jump() {
-    if (!this.isJumping) {
-      this.speedY = -15;
-      this.y += this.speedY;
-      this.isJumping = true;
-    }
-  }
-}
-
-function keyPressed() {
-  if (keyCode === 32) {
-    balon.jump();
+    return false;
   }
 }
