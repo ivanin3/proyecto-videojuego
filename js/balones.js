@@ -1,26 +1,26 @@
 class Balon {
   constructor(imagen) {
-    this.x = width / 2; // Posición inicial en el centro del borde inferior del canvas
-    this.y = height - 66; // Posición inicial en el borde inferior del canvas
-    this.speed = 1; // Velocidad de caída del balón
+    this.x = width / 2; 
+    this.y = height - 66; 
+    this.speed = 1; 
     this.imagenBalonFutbol = imagenBalonFutbol;
    // this.radius = 66;
   }
 
   move() {
-    // Actualizar la posición del balón en función de la entrada del usuario
+    
     if (keyIsDown(LEFT_ARROW)) {
-      this.x -= 5; // Mover hacia la izquierda
+      this.x -= 5; 
     }
     if (keyIsDown(RIGHT_ARROW)) {
-      this.x += 5; // Mover hacia la derecha
+      this.x += 5; 
     }
   
-    // Verificar si el balón ha salido del canvas por los lados izquierdo o derecho
+    
     if (this.x - this.radius < 0) {
-      this.x = this.radius; // Limitar la posición a la derecha del canvas
+      this.x = this.radius; 
     } else if (this.x + this.radius > width) {
-      this.x = width - this.radius; // Limitar la posición a la derecha del canvas
+      this.x = width - this.radius; 
     }
   }
   
@@ -40,7 +40,7 @@ class Balon {
       let r = this.imagenBalonFutbol.width / 2 + obstaculos[i].imagenBalonFutbol.width / 2;
 
       if (d < r) {
-        // Colisión detectada
+      
         return true;
       }
     }
