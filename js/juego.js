@@ -2,14 +2,14 @@ let balon;
 let obstaculos = [];
 let imagenGameOver;
 let tiempoInicio;
-let duracionNivel = 30 * 1000;
+let duracionNivel = 5 * 1000;
 let nivelPasado = false;
 let tiempoRestante;
 let nivel = 1;
 let numeros = [];
 let juegoIniciado = false;
-
-
+let velocidadObstaculos = 2;
+let velocidadBalon = 1;
 
 function preload() {
   imagenBalonFutbol = loadImage("./balones/football.png");
@@ -20,9 +20,11 @@ function preload() {
   imagenGameOver = loadImage("./imagenes-adicionales/gameover.png");
   imagenFondo = loadImage("./fondos/layers/parallax-mountain-bg.png");
   imagenMontañas = loadImage("./fondos/layers/parallax-mountain-mountains.png");
-  imagenArboles = loadImage("./fondos/layers/parallax-mountain-foreground-trees.png");
+  imagenArboles = loadImage(
+    "./fondos/layers/parallax-mountain-foreground-trees.png"
+  );
   for (let i = 0; i <= 9; i++) {
-    numeros.push(loadImage('./numeros/' + i + '.png'));
+    numeros.push(loadImage(`./numeros/${i}.png`));
   }
 }
 
@@ -38,7 +40,6 @@ function setup() {
 
 function draw() {
   if (juegoIniciado) {
-    
     image(imagenFondo, 0, 0);
     image(imagenMontañas, 0, 0);
     image(imagenArboles, 0, 0);
@@ -46,12 +47,14 @@ function draw() {
     balon.move();
 
     if (balon.checkCollision(obstaculos)) {
+      noLoop();
       image(imagenGameOver, 200, 100, 800, 300);
       setTimeout(function () {
+        nivel = 1;
         obstaculos = [];
         balon = new Balon();
         tiempoInicio = millis();
-        nivelPasado = false; 
+        loop();
       }, 3000);
       return;
     }
@@ -71,37 +74,9 @@ function draw() {
 
     tiempoRestante = duracionNivel - (millis() - tiempoInicio);
 
-    if (tiempoRestante <= 0 && !nivelPasado) {
-      nivelPasado = true;
-
-      if (cumplioRequisitosNivel1()) {
-
-        setTimeout(function () {
-          nivel++;
-
-          
-            
-            obstaculo = new Obstaculo(imagenBalonTennis);
-            obstaculos = [];
-            balon = new Balon(imagenBalonTennis);
-            tiempoInicio = millis();
-            duracionNivel = 35 * 1000; 
-            Balon.velocidad = 4; 
-            Obstaculo.velocidad = -2; 
-          }, 3000); 
-
-        
-        textSize(50);
-        fill(255);
-        textAlign(CENTER, CENTER);
-        text("NIVEL 2", width / 2, height / 2);
-      } else {
-        
-        obstaculos = [];
-        balon = new Balon();
-        tiempoInicio = millis();
-        duracionNivel = 30 * 1000; 
-      }
+    if (tiempoRestante <= 0) {
+      nivel++;
+      cambiarNivel();
     }
 
     let segundos = floor(tiempoRestante / 1000);
@@ -126,12 +101,25 @@ function draw() {
   }
 }
 
-function cumplioRequisitosNivel1() {
+function cambiarNivel() {
+  noLoop();
+  textSize(50);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  text("NIVEL " + nivel, width / 2, height / 2);
 
-  for (let i = 0; i < obstaculos.length; i++) {
-    if (balon.checkCollision([obstaculos[i]]) || tiempoRestante > 0) {
-      return false; 
+  setTimeout(function () {
+    velocidadBalon--; 
+    velocidadObstaculos++;
+
+    let cantidadObstaculos = 10 + nivel * 2; 
+    obstaculos = [];
+    for (let i = 0; i < cantidadObstaculos; i++) {
+      obstaculos.push(new Obstaculo(imagenBalonFutbol, obstaculos));
     }
-  }
-  return true; 
+
+    tiempoInicio = millis();
+    duracionNivel += 5000; 
+    loop();
+  }, 3000);
 }

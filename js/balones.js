@@ -1,29 +1,27 @@
 class Balon {
-  constructor(imagen) {
-    this.x = width / 2; 
-    this.y = height - 66; 
-    this.speed = 1; 
+  constructor(imagen, velocidad) {
+    this.x = width / 2;
+    this.y = height - 66;
+    this.speed = 1;
     this.imagenBalonFutbol = imagenBalonFutbol;
-   // this.radius = 66;
+    this.radius = 66;
   }
 
   move() {
-    
     if (keyIsDown(LEFT_ARROW)) {
-      this.x -= 5; 
+      this.x -= 5;
     }
     if (keyIsDown(RIGHT_ARROW)) {
-      this.x += 5; 
+      this.x += 5;
     }
-  
-    
-    if (this.x - this.radius < 0) {
-      this.x = this.radius; 
+
+    if (this.x < 0) {
+      this.x = 0;
     } else if (this.x + this.radius > width) {
-      this.x = width - this.radius; 
+      this.x = width - this.radius;
     }
   }
-  
+
   draw() {
     image(this.imagenBalonFutbol, this.x, this.y);
   }
@@ -37,10 +35,11 @@ class Balon {
   checkCollision(obstaculos) {
     for (let i = 0; i < obstaculos.length; i++) {
       let d = dist(this.x, this.y, obstaculos[i].x, obstaculos[i].y);
-      let r = this.imagenBalonFutbol.width / 2 + obstaculos[i].imagenBalonFutbol.width / 2;
+      let r =
+        this.imagenBalonFutbol.width / 2 +
+        obstaculos[i].imagenBalonFutbol.width / 2;
 
       if (d < r) {
-      
         return true;
       }
     }
